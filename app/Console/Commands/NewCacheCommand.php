@@ -17,7 +17,8 @@ class NewCacheCommand extends Command
         $value = $this->argument('value');
 
         Cache::put($key, $value);
-
+        Cache::get($key);
+        
         $this->components->info("Cached [{$key}] => {$value}");
 
         return self::SUCCESS;
