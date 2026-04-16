@@ -17,3 +17,27 @@ The learning goal is to understand how Pulse ingests metrics, how to tune it for
 
 - **Composer**: `composer setup` then `composer dev` (see `composer.json` scripts).
 - **Docker**: from the project root, `docker compose up --build`, then open the mapped HTTP port (see `docker-compose.yml`).
+
+## Sandbox Artisan commands
+
+These live in `app/Console/Commands` and exist to generate predictable traffic for **Laravel Pulse** (slow queries, cache hits/misses, queued jobs). Run them with `php artisan …` from the project root (with a queue worker running if you expect jobs to process).
+
+| Command | What it does |
+|--------|----------------|
+| `run:slow_query` | Runs `SELECT SLEEP(2)` against MySQL so Pulse can record a slow query. |
+| `new:cache {key} {value}` | Writes a key/value with `Cache::put`, then reads it—useful for cache **hit** activity. |
+| `run:missed_cache` | Looks up a unique key that was never stored—useful for cache **miss** activity. |
+| `run:fast_job` | Dispatches `FastJob`: finishes immediately (logs only). |
+| `run:slow_job` | Dispatches `SlowJob`: sleeps 2 seconds inside `handle()` when the worker runs it. |
+| `run:slow_queue_job` | Dispatches `SlowQueueJob`: sleeps 2 seconds in the job constructor before `handle()` runs. |
+
+Examples:
+
+```bash
+php artisan run:slow_query
+php artisan new:cache demo_key "hello"
+php artisan run:missed_cache
+php artisan run:fast_job
+php artisan run:slow_job
+php artisan run:slow_queue_job
+```
